@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # Set your secret key. Replace with your actual secret key.
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
-webhook_secret = os.getenv('WEBHOOK_KEY')
+PRICE_ID = os.getenv('PRICE_ID')
 
 # Setup logger
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -74,7 +74,7 @@ def create_checkout_session():
             mode='subscription',
             payment_method_types=['card'],
             line_items=[{
-                'price': 'price_1PmSqaDHhzrD2cdimRBYlCGz',
+                'price': PRICE_ID,
             }],
             success_url='http://localhost:8080/success?session_id={CHECKOUT_SESSION_ID}',
             cancel_url='http://localhost:8080/success',
@@ -104,8 +104,7 @@ def stripe_webhook():
 
     try:
         event = stripe.Event.construct_from(
-            payload, stripe.api_key
-        )
+            payload, stripe.api_key)
         logger.info(f"Webhook event received: {event['type']}")
     except stripe.error.SignatureVerificationError as e:
         logger.error(f"Webhook signature verification failed: {e}")
@@ -182,7 +181,12 @@ def api_access():
         return '', 403
     else:
         try:
-            return jsonify({'data': '🔥🔥🔥🔥🔥🔥🔥🔥', 'customerId': customer_id})
+            # this is blocking and kind of slow
+            stripe.billing.MeterEvent.create(
+                event_name="api_requests",
+                payload={"value": "1", "stripe_customer_id": customer_id},
+            )
+            return jsonify({'data': 'You made a successful API request', 'customerId': customer_id})
         except Exception as e:
             logger.error(f"Failed to respond: {e}")
             return str(e), 500

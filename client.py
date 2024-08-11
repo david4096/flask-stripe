@@ -39,11 +39,12 @@ def get_customer_info(api_key):
 
 # 4. Retrieve usage data for a specific customer
 def get_customer_usage(api_key):
-    url = f"{BASE_URL}/api?apiKey={api_key}"
+    url = f"{BASE_URL}/usage?apiKey={api_key}"
     response = requests.get(url)
     if response.status_code == 200:
         usage_info = response.json()
         print(f"Customer Usage Info: {usage_info}")
+        return usage_info
     else:
         print(f"Failed to retrieve usage info: {response.status_code}, {response.text}")
 
@@ -73,4 +74,10 @@ if __name__ == '__main__':
 
     # Step 4: Get customer usage data
     print('customer usage')
-    get_customer_usage(api_key)
+    usage_info = get_customer_usage(api_key)
+    print(usage_info['total'])
+
+    # Step 5: Repeatedly call API
+    [call_api(api_key) for x in range(100)]
+    usage_info = get_customer_usage(api_key)
+    print(usage_info['total'])
