@@ -113,6 +113,8 @@ This Flask application provides a simple API for handling Stripe subscriptions, 
 
 - The application uses a simple in-memory database (`customers` and `api_keys` dictionaries) to store customer information and API keys for demonstration purposes. In a production environment, this should be replaced with a persistent database.
 
+- Run the local webhook server via Stripe CLI `stripe listen --forward-to localhost:8080/webhook`
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
